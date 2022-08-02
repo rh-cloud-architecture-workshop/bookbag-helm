@@ -1,0 +1,1 @@
+Helm charts for bookbag deployment for the cloud architecture workshop
