@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "bookbag.name" . }}
+  labels:
+    {{- include "bookbag.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "bookbag.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "bookbag.selectorLabels" . | nindent 8 }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "bookbag.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP          
+          env:
+            - name: APPLICATION_NAME
+              value: {{ include "bookbag.name" . }}
+            - name: AUTH_USERNAME
+              value: '*'           
+            - name: CLUSTER_SUBDOMAIN
+            - name: OAUTH_SERVICE_ACCOUNT
+              value: {{ include "bookbag.serviceAccountName" . }}
+            - name: DOWNLOAD_URL
+            - name: WORKSHOP_FILE
+            - name: OC_VERSION
+            - name: ODO_VERSION
+            - name: KUBECTL_VERSION
+            - name: WORKSHOP_VARS
+              value: >-
+                {{ .Values.bookbagVariables }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
